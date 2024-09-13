@@ -145,8 +145,9 @@ void imagemRaioX(char *nomeImagem, RGB vetor[linha][coluna]) {
         perror("Erro ao criar o arquivo Raio X");
         exit(EXIT_FAILURE);
     }
-
-    fprintf(fp_RaioX, "P2\n%d %d\n%d\n", coluna, linha, valor);
+    fprintf(fp_RaioX, "P2\n");
+    fprintf(fp_RaioX, "%d %d\n", coluna, linha);
+    fprintf(fp_RaioX, "%d\n", valor);
     for (int i = 0; i < linha; i++) {
         for (int j = 0; j < coluna; j++) {
             int cinza = (vetor[i][j].r * 0.299) + (vetor[i][j].g * 0.587) + (vetor[i][j].b * 0.114);
