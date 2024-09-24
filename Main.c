@@ -16,7 +16,7 @@ void imagemNegativa(char *nomeImagem, RGB **vetor, int linha, int coluna, int va
 void imagemCinza(char *nomeImagem, RGB **vetor, int linha, int coluna, int valor);
 void imagemRaioX(char *nomeImagem, RGB **vetor, int linha, int coluna, int valor);
 void imagemEnvelhecida(char *nomeImagem, RGB **vetor, int linha, int coluna, int valor);
-//void imagemRotacionada90(){}
+void imagemRotacionada90(char *nomeImagem, RGB **vetor, int linha, int coluna, int valor);
 
 
 
@@ -83,19 +83,19 @@ int main() {
 
     switch (operacao) {
         case '1':
-            imagemNegativa("imagem_negativa.ppm", vetor, linha, coluna, valor);
+            imagemNegativa("imagem_negativa.ppm", vetor, linha, coluna, valor);//feita
             break;
         case '2':
-            imagemCinza("imagem_cinza.ppm", vetor, linha, coluna, valor);
+            imagemCinza("imagem_cinza.ppm", vetor, linha, coluna, valor);//feita
             break;
         case '3':
-            imagemRaioX("imagem_raioX.ppm", vetor, linha, coluna, valor);
-                break;
-        //case '4':
-            // Implementar imagemRotacionada90();
-            //break;
+            imagemRaioX("imagem_raioX.ppm", vetor, linha, coluna, valor);//quase feita
+            break;
+        case '4':
+            imagemRotacionada90("imagem_rotacionada.ppm", vetor, linha, coluna, valor);//feita
+            break;
         case '5':
-            imagemEnvelhecida("Imagem_Envelhecida.ppm", vetor, linha, coluna, valor);
+            imagemEnvelhecida("Imagem_Envelhecida.ppm", vetor, linha, coluna, valor);//
             break;
         default:
             printf("Opção inválida.\n");
@@ -147,7 +147,7 @@ void imagemNegativa(char *nomeImagem, RGB **vetor, int linha, int coluna, int va
     fprintf(fp_Negativa, "%d %d\n", coluna, linha);
     fprintf(fp_Negativa, "%d\n", valor);
     for (int i = 0; i < linha; i++) {
-        for (int j = 0; j < coluna; j++) {
+        for (int j = 0; j < coluna; j++){
             fprintf(fp_Negativa, "%d %d %d\n", 255 - vetor[i][j].r, 255 - vetor[i][j].g, 255 - vetor[i][j].b);
         }
     }
@@ -169,8 +169,15 @@ void imagemRaioX(char *nomeImagem, RGB **vetor, int linha, int coluna, int valor
     for (int i = 0; i < linha; i++){
         for (int j = 0; j < coluna; j++){
             int cinza = (int)((vetor[i][j].r * 0.299) + (vetor[i][j].g * 0.587) + (vetor[i][j].b * 0.114));
-            float raioX = pow(cinza,1.1); // Aplicar transformação de Raio X
-            fprintf(fp_RaioX, "%d\n", (int)raioX);
+            float raioX = pow((float)cinza, 1.1); // Converte cinza para float
+            //verificação para não extrapolar o valor máximo
+            if (vetor[i][j].r > valor) vetor[i][j].r = valor;
+            if (vetor[i][j].g > valor) vetor[i][j].g = valor;
+            if (vetor[i][j].b > valor) vetor[i][j].b = valor;
+            if (vetor[i][j].r < 0) vetor[i][j].r = 0;
+            if (vetor[i][j].g < 0) vetor[i][j].g = 0;
+            if (vetor[i][j].b < 0) vetor[i][j].b = 0;
+            fprintf(fp_RaioX, "%d\n", (int)raioX); // Converte de volta para int antes de escrever
         }
         fprintf(fp_RaioX, "\n");
     }
@@ -185,38 +192,54 @@ void imagemEnvelhecida(char *nomeImagem, RGB **vetor, int linha, int coluna, int
         perror("Erro ao criar o arquivo Envelhecida");
         exit(EXIT_FAILURE);
     }
-    fprintf(fp_Envelhecida, "P2\n");
+
+    // Escreve o cabeçalho do arquivo no formato P3 (RGB)
+    fprintf(fp_Envelhecida, "P3\n");
     fprintf(fp_Envelhecida, "%d %d\n", coluna, linha);
-    fprintf(fp_Envelhecida, "%d\n", valor);
-    double fator=0.1;
-    for(int i=0; i<linha; i++){
-        for(int j=0;j<coluna;j++){
-         int velha = (int) (vetor[i][j].r*(1+fator), vetor[i][j].g*(1+fator), vetor[i][j].b*(1-fator));
-            fprintf(fp_Envelhecida, "%d %d %d\n", (int)velha);
+    fprintf(fp_Envelhecida, "%d\n", valor);  // Máximo valor de cor
+
+    double fator = 0.9;
+
+    // Processa a imagem, aplicando o efeito de envelhecimento
+    for (int i = 0; i < linha; i++) {
+        for (int j = 0; j < coluna; j++) {
+            // Aplica o fator de envelhecimento para cada componente RGB
+            int r = (int)(vetor[i][j].r * (1 + fator));  // Aumenta o vermelho
+            int g = (int)(vetor[i][j].g * (1 + fator));  // Aumenta o verde
+            int b = (int)(vetor[i][j].b * (1 - fator));  // Diminui o azul
         }
     }
-     fclose(fp_Envelhecida);
+    for (int i = 0; i < linha; i++) {
+      for (int j = 0; j < coluna; j++) {
+    int r = (int)(vetor[i][j].r + 10);  // Aumenta o vermelho
+    int g = (int)(vetor[i][j].g + 10);  // Aumenta o verde
+    int b = (int)(vetor[i][j].b - 10);
+            // Escreve os valores ajustados no arquivo
+            fprintf(fp_Envelhecida, "%d %d %d\n", r, g, b);
+        }
+    }
+    fclose(fp_Envelhecida);
     printf("Imagem Envelhecida criada com sucesso.\n");
 }
 
 // Função para criar a imagem Rotacionada em 90°:
-void imagemRotacionada90(char *nomeImagem, int linha, int coluna, int valor){
-FILE *fp_Rotacionada = fopen(nomeImagem, "w");
+void imagemRotacionada90(char *nomeImagem, RGB **vetor, int linha, int coluna, int valor) {
+    FILE *fp_Rotacionada = fopen(nomeImagem, "w");
     if (fp_Rotacionada == NULL) {
         perror("Erro ao criar o arquivo Rotacionado");
         exit(EXIT_FAILURE);
     }
     fprintf(fp_Rotacionada, "P3\n");
-    fprintf(fp_Rotacionada, "%d %d\n", coluna, linha);
+    fprintf(fp_Rotacionada, "%d %d\n", linha, coluna); // Inverte as dimensões
     fprintf(fp_Rotacionada, "%d\n", valor);
-    for(int i=0; i<linha; i++){
-        for(int j=0;j<coluna;j++){
-            
-      // vetor[i][j] = vetor[j][i];
 
+    // Rotaciona a imagem em 90 graus
+    for (int j = 0; j < coluna; j++) {
+        for (int i = linha - 1; i >= 0; i--) {
+            fprintf(fp_Rotacionada, "%d %d %d\n", vetor[i][j].r, vetor[i][j].g, vetor[i][j].b);
         }
     }
-     fclose(fp_Rotacionada);
+
+    fclose(fp_Rotacionada);
     printf("Imagem Rotacionada em 90° criada com sucesso.\n");
 }
-
