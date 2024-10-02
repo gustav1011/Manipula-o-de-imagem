@@ -163,27 +163,32 @@ void imagemRaioX(char *nomeImagem, RGB **vetor, int linha, int coluna, int valor
         perror("Erro ao criar o arquivo Raio X");
         exit(EXIT_FAILURE);
     }
+
+    // Escreve o cabeçalho do arquivo no formato P2 (escala de cinza)
     fprintf(fp_RaioX, "P2\n");
     fprintf(fp_RaioX, "%d %d\n", coluna, linha);
-    fprintf(fp_RaioX, "%d\n", valor);
-    for (int i = 0; i < linha; i++){
-        for (int j = 0; j < coluna; j++){
+    fprintf(fp_RaioX, "%d\n", valor);  // Valor máximo (255)
+
+    for (int i = 0; i < linha; i++) {
+        for (int j = 0; j < coluna; j++) {
+            // Converte para escala de cinza usando ponderação RGB
             int cinza = (int)((vetor[i][j].r * 0.299) + (vetor[i][j].g * 0.587) + (vetor[i][j].b * 0.114));
-            float raioX = pow((float)cinza, 1.1); // Converte cinza para float
-            //verificação para não extrapolar o valor máximo
-            if (vetor[i][j].r > valor) vetor[i][j].r = valor;
-            if (vetor[i][j].g > valor) vetor[i][j].g = valor;
-            if (vetor[i][j].b > valor) vetor[i][j].b = valor;
-            if (vetor[i][j].r < 0) vetor[i][j].r = 0;
-            if (vetor[i][j].g < 0) vetor[i][j].g = 0;
-            if (vetor[i][j].b < 0) vetor[i][j].b = 0;
-            fprintf(fp_RaioX, "%d\n", (int)raioX); // Converte de volta para int antes de escrever
+            // Aplica a transformação raio X com um fator ajustado
+            float raioX = pow((float)cinza, 1.1);
+            // Normaliza para o intervalo 0-255
+            if (raioX > valor) raioX = valor;  // Limita a 255
+            if (raioX < 0) raioX = 0;          // Garante que não seja negativo
+
+            // Escreve o valor resultante no arquivo
+            fprintf(fp_RaioX, "%d\n", (int)raioX);
         }
-        fprintf(fp_RaioX, "\n");
+        fprintf(fp_RaioX, "\n"); // Para manter o formato P2 correto
     }
+
     fclose(fp_RaioX);
     printf("Imagem em Raio X criada com sucesso.\n");
 }
+
 
 // Função para criar a imagem Envelhecida:
 void imagemEnvelhecida(char *nomeImagem, RGB **vetor, int linha, int coluna, int valor){
