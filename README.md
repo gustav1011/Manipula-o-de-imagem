@@ -3,10 +3,7 @@ Este projeto envolve a manipulação direta de pixels em uma imagem em formato p
 
 ## Instalação
 Clone o repositório e execute o seguinte comando:
+git clone https://github.com/gustav1011/Manipula-o-de-imagem.git
 
-```bash
-git clone https://github.com/seuusuario/MeuProjeto.git
-cd MeuProjeto
-npm install  # ou o gerenciador de pacotes que você está usando
 
 
