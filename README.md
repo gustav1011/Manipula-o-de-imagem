@@ -3,6 +3,7 @@
 
 ## Instalação
 -Clone o repositório e execute o seguinte comando:
+
 git clone https://github.com/gustav1011/Manipula-o-de-imagem.git
 
 
